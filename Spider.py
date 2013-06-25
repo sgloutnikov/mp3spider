@@ -9,17 +9,18 @@ import random
 #TO-DO: Nested CD Dirs in Album
 #TO-DO: Album Count on Page
 
-#url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/"
-url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/index.php?order=mod&direction=0"
+url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/"
+#url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/index.php?order=mod&direction=0/"
 
 downloadBaseLocation = '/Users/sgloutnikov/Downloads/Folkoteka/'
+downloadAlbumLocation = downloadBaseLocation
 mp3Pattern = re.compile('.*action=downloadfile.*mp3&.*', re.UNICODE)
 zipPattern = re.compile('.*action=downloadfile.*zip&.*', re.UNICODE)
 dirPattern = re.compile('.*&directory.*', re.UNICODE)
 downloadCurrent = 0
 # Inclusive Range
 downloadStart = 0
-downloadEnd = 10
+downloadEnd = 0
 
 logging.basicConfig(filename='./log/fs-'+str(downloadStart)+'-'+str(downloadEnd)+'.log', format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', \
                     datefmt='%m-%d %H:%M', level=logging.DEBUG)
@@ -41,8 +42,7 @@ def download(url, albumDestination):
     logging.info('= FINISHED DOWNLOAD FOR: ' + filename)
 
 
-def createAlbumDirectory(basePath, title):
-    fullPath = basePath + title
+def createAlbumDirectory(fullPath):
     try:
         os.makedirs(fullPath)
     except OSError:
@@ -50,12 +50,20 @@ def createAlbumDirectory(basePath, title):
             logging.exception(fullPath)
             raise
 
+
+def getSoup(url):
+    request = urllib2.Request(url)
+    response = urllib2.urlopen(request)
+    soup = bs4.BeautifulSoup(response)
+    return soup
+
 # Start
-request = urllib2.Request(url)
-response = urllib2.urlopen(request)
-soup = bs4.BeautifulSoup(response)
+#request = urllib2.Request(url)
+#response = urllib2.urlopen(request)
+#soup = getSoup(url)
+albumSoup = getSoup(url)
 # All Links
-for link in soup.find_all('a'):
+for link in albumSoup.find_all('a'):
     folderUrl = url + str(link.get('href')).replace(' ', '%20')
     # Album Links
     if dirPattern.search(folderUrl) and str(link.get('title')) != 'None':
@@ -69,21 +77,24 @@ for link in soup.find_all('a'):
         # Prepare Album Download
         time.sleep(random.randint(1, 3))
         albumTitle = str(link.get('title'))
-        createAlbumDirectory(downloadBaseLocation, albumTitle)
+        downloadAlbumLocation = downloadAlbumLocation + albumTitle + '/'
+        createAlbumDirectory(downloadAlbumLocation)
         print('+++ STARTING ALBUM (' + str(downloadCurrent) + '): ' + albumTitle)
         logging.info('+++ STARTING ALBUM (' + str(downloadCurrent) + '): ' + albumTitle + ' FROM: ' + folderUrl)
         downloadCurrent += 1
-        request2 = urllib2.Request(folderUrl)
-        response2 = urllib2.urlopen(request2)
-        soup2 = bs4.BeautifulSoup(response2)
+        #request2 = urllib2.Request(folderUrl)
+        #response2 = urllib2.urlopen(request2)
+        #songSoup = bs4.BeautifulSoup(response2)
+        songSoup = getSoup(folderUrl)
         # Song Links
-        for link2 in soup2.find_all('a'):
+        for link2 in songSoup.find_all('a'):
             songHref = str(link2.get('href'))
+            # Song Found
             if (mp3Pattern.search(songHref) or zipPattern.search(songHref)):
                 time.sleep(random.randint(1,2))
                 songUrl = url + str(link2.get('href')).replace(' ', '%20')
                 logging.info('++ STARTING SONG FROM: ' + songUrl)
-                download(songUrl, downloadBaseLocation + albumTitle + '/')
+                download(songUrl, downloadAlbumLocation)
 
 logging.info('=== Finished Download for Range: ' + str(downloadStart) + ' - ' + str(downloadEnd))
 print('=== Finished Download for Range: ' + str(downloadStart) + ' - ' + str(downloadEnd))
