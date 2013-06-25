@@ -92,14 +92,16 @@ for link in albumSoup.find_all('a'):
         downloadCurrent += 1
         songSoup = getSoup(folderUrl)
         # Song Links
-        for link2 in songSoup.find_all('a'):
-            songHref = str(link2.get('href'))
+        for songLink in songSoup.find_all('a'):
+            songHref = str(songLink.get('href'))
             # Song Found
             if (mp3Pattern.search(songHref) or zipPattern.search(songHref)):
                 time.sleep(random.randint(1,2))
-                songUrl = url + str(link2.get('href')).replace(' ', '%20')
+                songUrl = url + str(songLink.get('href')).replace(' ', '%20')
                 logging.info('++ STARTING SONG FROM: ' + songUrl)
                 download(songUrl, downloadAlbumLocation)
+            # CD/Dir Found
+                #TO-DO
 
 logging.info('=== Finished Download for Range: ' + str(downloadStart) + ' - ' + str(downloadEnd))
 print('=== Finished Download for Range: ' + str(downloadStart) + ' - ' + str(downloadEnd))
