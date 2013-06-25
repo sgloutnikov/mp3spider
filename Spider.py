@@ -58,9 +58,6 @@ def getSoup(url):
     return soup
 
 # Start
-#request = urllib2.Request(url)
-#response = urllib2.urlopen(request)
-#soup = getSoup(url)
 albumSoup = getSoup(url)
 # All Links
 for link in albumSoup.find_all('a'):
@@ -82,9 +79,6 @@ for link in albumSoup.find_all('a'):
         print('+++ STARTING ALBUM (' + str(downloadCurrent) + '): ' + albumTitle)
         logging.info('+++ STARTING ALBUM (' + str(downloadCurrent) + '): ' + albumTitle + ' FROM: ' + folderUrl)
         downloadCurrent += 1
-        #request2 = urllib2.Request(folderUrl)
-        #response2 = urllib2.urlopen(request2)
-        #songSoup = bs4.BeautifulSoup(response2)
         songSoup = getSoup(folderUrl)
         # Song Links
         for link2 in songSoup.find_all('a'):
@@ -98,9 +92,3 @@ for link in albumSoup.find_all('a'):
 
 logging.info('=== Finished Download for Range: ' + str(downloadStart) + ' - ' + str(downloadEnd))
 print('=== Finished Download for Range: ' + str(downloadStart) + ' - ' + str(downloadEnd))
-
-
-
-
-#if 'national-park' in a['href']:
-#    print 'found a url with national-park in the  link'
