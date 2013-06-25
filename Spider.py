@@ -7,7 +7,6 @@ import os
 import random
 
 #TO-DO: Nested CD Dirs in Album
-#TO-DO: Album Count on Page
 
 url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/"
 #url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/index.php?order=mod&direction=0/"
@@ -18,6 +17,7 @@ mp3Pattern = re.compile('.*action=downloadfile.*mp3&.*', re.UNICODE)
 zipPattern = re.compile('.*action=downloadfile.*zip&.*', re.UNICODE)
 dirPattern = re.compile('.*&directory.*', re.UNICODE)
 downloadCurrent = 0
+totalAlbums = 0
 # Inclusive Range
 downloadStart = 0
 downloadEnd = 0
@@ -57,7 +57,18 @@ def getSoup(url):
     soup = bs4.BeautifulSoup(response)
     return soup
 
+
+def countDirs(url):
+    soup = getSoup(url)
+    count = 0
+    for link in soup.find_all('a'):
+        if dirPattern.search(str(link.get('href'))):
+            count += 1
+    return count
+
+
 # Start
+totalAlbums = countDirs(url)
 albumSoup = getSoup(url)
 # All Links
 for link in albumSoup.find_all('a'):
@@ -76,7 +87,7 @@ for link in albumSoup.find_all('a'):
         albumTitle = str(link.get('title'))
         downloadAlbumLocation = downloadAlbumLocation + albumTitle + '/'
         createAlbumDirectory(downloadAlbumLocation)
-        print('+++ STARTING ALBUM (' + str(downloadCurrent) + '): ' + albumTitle)
+        print('+++ STARTING ALBUM (' + str(downloadCurrent) + ' of total ' + str(totalAlbums) + '): ' + albumTitle)
         logging.info('+++ STARTING ALBUM (' + str(downloadCurrent) + '): ' + albumTitle + ' FROM: ' + folderUrl)
         downloadCurrent += 1
         songSoup = getSoup(folderUrl)
