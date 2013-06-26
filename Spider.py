@@ -88,8 +88,6 @@ def processDir(songSoup, baseDirTitle, albumLocation):
             processDir(newSongSoup, newDirTitle, newAlbumLocation)
 
 
-
-
 # Start
 totalAlbums = countDirs(url)
 albumSoup = getSoup(url)
