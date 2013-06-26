@@ -6,7 +6,9 @@ import logging
 import os
 import random
 
-#url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/"
+# Main Url
+urlBase = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/"
+# Sorted Url for 1st Album Listing
 url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/index.php?order=mod&direction=0/"
 
 downloadBaseLocation = '/Users/sgloutnikov/Downloads/Folkoteka/'
@@ -72,7 +74,7 @@ def processDir(songSoup, baseDirTitle, albumLocation):
         # Song Found
         if (mp3Pattern.search(songHref) or zipPattern.search(songHref)):
             time.sleep(random.randint(1,2))
-            songUrl = url + str(songLink.get('href')).replace(' ', '%20')
+            songUrl = urlBase + str(songLink.get('href')).replace(' ', '%20')
             logging.info('+ STARTING SONG FROM: ' + songUrl)
             download(songUrl, albumLocation)
         # CD/Dir Found
