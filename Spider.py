@@ -6,13 +6,11 @@ import logging
 import os
 import random
 
-#TO-DO: Nested CD Dirs in Album
-
 url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/"
 #url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/index.php?order=mod&direction=0/"
 
 downloadBaseLocation = '/Users/sgloutnikov/Downloads/Folkoteka/'
-downloadAlbumLocation = downloadBaseLocation
+downloadAlbumLocation = ''
 mp3Pattern = re.compile('.*action=downloadfile.*mp3&.*', re.UNICODE)
 zipPattern = re.compile('.*action=downloadfile.*zip&.*', re.UNICODE)
 dirPattern = re.compile('.*&directory.*', re.UNICODE)
@@ -22,24 +20,8 @@ totalAlbums = 0
 downloadStart = 0
 downloadEnd = 0
 
-logging.basicConfig(filename='./log/fs-'+str(downloadStart)+'-'+str(downloadEnd)+'.log', format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', \
-                    datefmt='%m-%d %H:%M', level=logging.DEBUG)
-
-
-def download(url, albumDestination):
-    s = urllib2.urlopen(url)
-    # Get filename and strip "...";
-    filename = s.info()['Content-Disposition'].split('filename=')[1]
-    if filename[0] == '"' or filename[0] == "'":
-        filename = filename[1:-2]
-    logging.info('+ STARTING DOWNLOAD FOR: ' + filename)
-    content = s.read()
-    s.close()
-    file = open(albumDestination + filename, 'wb')
-    file.write(content)
-    file.close()
-    print('= DOWNLOADED: ' + filename)
-    logging.info('= FINISHED DOWNLOAD FOR: ' + filename)
+logging.basicConfig(filename='./log/fs-'+str(downloadStart)+'-'+str(downloadEnd)+'.log', format='%(asctime)s: %(message)s', \
+                    datefmt='%m-%d-%Y %H:%M', level=logging.DEBUG)
 
 
 def createAlbumDirectory(fullPath):
@@ -67,6 +49,47 @@ def countDirs(url):
     return count
 
 
+def download(url, albumDestination):
+    s = urllib2.urlopen(url)
+    # Get filename and strip "...";
+    filename = s.info()['Content-Disposition'].split('filename=')[1]
+    if filename[0] == '"' or filename[0] == "'":
+        filename = filename[1:-2]
+    logging.info('+ STARTING DOWNLOAD FOR: ' + filename)
+    content = s.read()
+    s.close()
+    file = open(albumDestination + filename, 'wb')
+    file.write(content)
+    file.close()
+    print('= DOWNLOADED: ' + filename)
+    logging.info('= FINISHED DOWNLOAD FOR: ' + filename)
+
+
+def processDir(songSoup, baseDirTitle, albumLocation):
+    # Song Links
+    for songLink in songSoup.find_all('a'):
+        songHref = str(songLink.get('href'))
+        # Song Found
+        if (mp3Pattern.search(songHref) or zipPattern.search(songHref)):
+            time.sleep(random.randint(1,2))
+            songUrl = url + str(songLink.get('href')).replace(' ', '%20')
+            logging.info('+ STARTING SONG FROM: ' + songUrl)
+            download(songUrl, albumLocation)
+        # CD/Dir Found
+        if (dirPattern.search(songHref)) and str(songLink.get('title')) != 'None':
+            time.sleep(random.randint(1,2))
+            newDirTitle = str(songLink.get('title'))
+            newAlbumLocation = albumLocation + newDirTitle + '/'
+            createAlbumDirectory(newAlbumLocation)
+            dirUrl = url + str(songLink.get('href')).replace(' ', '%20')
+            print ('++ FOUND DIRECTORY ' + newDirTitle + ' AT: ' + baseDirTitle)
+            logging.info('++ FOUND DIRECTORY ' + newDirTitle + ' AT: ' + baseDirTitle)
+            newSongSoup = getSoup(dirUrl)
+            processDir(newSongSoup, newDirTitle, newAlbumLocation)
+
+
+
+
 # Start
 totalAlbums = countDirs(url)
 albumSoup = getSoup(url)
@@ -84,24 +107,16 @@ for link in albumSoup.find_all('a'):
             break
         # Prepare Album Download
         time.sleep(random.randint(1, 3))
+        downloadCurrent += 1
         albumTitle = str(link.get('title'))
-        downloadAlbumLocation = downloadAlbumLocation + albumTitle + '/'
+        downloadAlbumLocation = downloadBaseLocation + albumTitle + '/'
         createAlbumDirectory(downloadAlbumLocation)
         print('+++ STARTING ALBUM (' + str(downloadCurrent) + ' of total ' + str(totalAlbums) + '): ' + albumTitle)
         logging.info('+++ STARTING ALBUM (' + str(downloadCurrent) + '): ' + albumTitle + ' FROM: ' + folderUrl)
-        downloadCurrent += 1
+        # Process Dirs/Albums
         songSoup = getSoup(folderUrl)
-        # Song Links
-        for songLink in songSoup.find_all('a'):
-            songHref = str(songLink.get('href'))
-            # Song Found
-            if (mp3Pattern.search(songHref) or zipPattern.search(songHref)):
-                time.sleep(random.randint(1,2))
-                songUrl = url + str(songLink.get('href')).replace(' ', '%20')
-                logging.info('++ STARTING SONG FROM: ' + songUrl)
-                download(songUrl, downloadAlbumLocation)
-            # CD/Dir Found
-                #TO-DO
+        processDir(songSoup, albumTitle, downloadAlbumLocation)
+
 
 logging.info('=== Finished Download for Range: ' + str(downloadStart) + ' - ' + str(downloadEnd))
 print('=== Finished Download for Range: ' + str(downloadStart) + ' - ' + str(downloadEnd))
