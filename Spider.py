@@ -6,12 +6,15 @@ import logging
 import os
 import random
 
+#TO-DO Replace Non-ASCII Characters
+
+
 # Main Url
 urlBase = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/"
 # Sorted Url for 1st Album Listing
 url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/index.php?order=mod&direction=0/"
 
-downloadBaseLocation = '/Users/sgloutnikov/Downloads/Folkoteka/'
+downloadBaseLocation = 'F:/+Folkoteka+/'
 downloadAlbumLocation = ''
 mp3Pattern = re.compile('.*action=downloadfile.*mp3&.*', re.UNICODE)
 zipPattern = re.compile('.*action=downloadfile.*zip&.*', re.UNICODE)
@@ -19,8 +22,8 @@ dirPattern = re.compile('.*&directory.*', re.UNICODE)
 downloadCurrent = 0
 totalAlbums = 0
 # Inclusive Range
-downloadStart = 0
-downloadEnd = 0
+downloadStart = 7
+downloadEnd = 100
 
 logging.basicConfig(filename='./log/fs-'+str(downloadStart)+'-'+str(downloadEnd)+'.log', format='%(asctime)s: %(message)s', \
                     datefmt='%m-%d-%Y %H:%M', level=logging.DEBUG)
@@ -107,12 +110,12 @@ for link in albumSoup.find_all('a'):
             break
         # Prepare Album Download
         time.sleep(random.randint(1, 3))
-        downloadCurrent += 1
         albumTitle = str(link.get('title'))
         downloadAlbumLocation = downloadBaseLocation + albumTitle + '/'
         createAlbumDirectory(downloadAlbumLocation)
         print('+++ STARTING ALBUM (' + str(downloadCurrent) + ' of total ' + str(totalAlbums) + '): ' + albumTitle)
-        logging.info('+++ STARTING ALBUM (' + str(downloadCurrent) + '): ' + albumTitle + ' FROM: ' + folderUrl)
+        logging.info('+++ STARTING ALBUM (' + str(downloadCurrent) + ' of total ' + str(totalAlbums) + '): ' + albumTitle + ' FROM: ' + folderUrl)
+        downloadCurrent += 1
         # Process Dirs/Albums
         songSoup = getSoup(folderUrl)
         processDir(songSoup, albumTitle, downloadAlbumLocation)
