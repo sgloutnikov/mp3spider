@@ -7,6 +7,8 @@ import os
 import random
 
 #TO-DO Replace Non-ASCII Characters
+#Dir Identify Problem
+#Download in Dir Location Check 
 
 
 # Main Url
@@ -22,8 +24,8 @@ dirPattern = re.compile('.*&directory.*', re.UNICODE)
 downloadCurrent = 0
 totalAlbums = 0
 # Inclusive Range
-downloadStart = 7
-downloadEnd = 100
+downloadStart = 247
+downloadEnd = 250
 
 logging.basicConfig(filename='./log/fs-'+str(downloadStart)+'-'+str(downloadEnd)+'.log', format='%(asctime)s: %(message)s', \
                     datefmt='%m-%d-%Y %H:%M', level=logging.DEBUG)
