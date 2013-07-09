@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import urllib2
 import bs4
 import time
@@ -8,26 +6,22 @@ import logging
 import os
 import random
 
-#TO-DO Replace Non-ASCII Characters
-#Dir Identify Problem
-#Download in Dir Location Check 
-
-
 # Main Url
 urlBase = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/"
-# Sorted Url for 1st Album Listing
+# Sorted Url for Newest Album Listing 1st
 url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/index.php?order=mod&direction=0/"
 
 downloadBaseLocation = '/Users/sgloutnikov/Downloads/Folkoteka/'
 downloadAlbumLocation = ''
+# Identify entities in link by these patterns
 mp3Pattern = re.compile('.*action=downloadfile.*mp3&.*', re.UNICODE)
 zipPattern = re.compile('.*action=downloadfile.*zip&.*', re.UNICODE)
-dirPattern = re.compile('.*&directory.*', re.UNICODE)
+dirPattern = re.compile('.*&direction.*&directory.*', re.UNICODE)
 downloadCurrent = 0
 totalAlbums = 0
 # Inclusive Range
-downloadStart = 218
-downloadEnd = 218
+downloadStart = 151
+downloadEnd = 151
 
 logging.basicConfig(filename='./log/fs-'+str(downloadStart)+'-'+str(downloadEnd)+'.log', format='%(asctime)s: %(message)s', \
                     datefmt='%m-%d-%Y %H:%M', level=logging.DEBUG)
@@ -90,7 +84,7 @@ def processDir(songSoup, baseDirTitle, albumLocation):
             newDirTitle = str(songLink.get('title'))
             newAlbumLocation = albumLocation + newDirTitle + '/'
             createAlbumDirectory(newAlbumLocation)
-            dirUrl = url + urllib2.quote(link.get('href').encode('utf8'), safe='/?=&')
+            dirUrl = url + songHref
             print ('++ FOUND DIRECTORY ' + newDirTitle + ' AT: ' + baseDirTitle)
             logging.info('++ FOUND DIRECTORY ' + newDirTitle + ' AT: ' + baseDirTitle)
             newSongSoup = getSoup(dirUrl)
