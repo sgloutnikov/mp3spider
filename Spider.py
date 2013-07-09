@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import urllib2
 import bs4
 import time
@@ -16,7 +18,7 @@ urlBase = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuu
 # Sorted Url for 1st Album Listing
 url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/index.php?order=mod&direction=0/"
 
-downloadBaseLocation = 'F:/+Folkoteka+/'
+downloadBaseLocation = '/Users/sgloutnikov/Downloads/Folkoteka/'
 downloadAlbumLocation = ''
 mp3Pattern = re.compile('.*action=downloadfile.*mp3&.*', re.UNICODE)
 zipPattern = re.compile('.*action=downloadfile.*zip&.*', re.UNICODE)
@@ -24,8 +26,8 @@ dirPattern = re.compile('.*&directory.*', re.UNICODE)
 downloadCurrent = 0
 totalAlbums = 0
 # Inclusive Range
-downloadStart = 247
-downloadEnd = 250
+downloadStart = 218
+downloadEnd = 218
 
 logging.basicConfig(filename='./log/fs-'+str(downloadStart)+'-'+str(downloadEnd)+'.log', format='%(asctime)s: %(message)s', \
                     datefmt='%m-%d-%Y %H:%M', level=logging.DEBUG)
@@ -51,7 +53,7 @@ def countDirs(url):
     soup = getSoup(url)
     count = 0
     for link in soup.find_all('a'):
-        if dirPattern.search(str(link.get('href'))):
+        if dirPattern.search(str(link.get('href'))) and str(link.get('title')) != 'None':
             count += 1
     return count
 
@@ -75,11 +77,11 @@ def download(url, albumDestination):
 def processDir(songSoup, baseDirTitle, albumLocation):
     # Song Links
     for songLink in songSoup.find_all('a'):
-        songHref = str(songLink.get('href'))
+        songHref = urllib2.quote(songLink.get('href').encode('utf8'), safe='/?=&')
         # Song Found
         if (mp3Pattern.search(songHref) or zipPattern.search(songHref)):
             time.sleep(random.randint(1,2))
-            songUrl = urlBase + str(songLink.get('href')).replace(' ', '%20')
+            songUrl = urlBase + songHref
             logging.info('+ STARTING SONG FROM: ' + songUrl)
             download(songUrl, albumLocation)
         # CD/Dir Found
@@ -88,7 +90,7 @@ def processDir(songSoup, baseDirTitle, albumLocation):
             newDirTitle = str(songLink.get('title'))
             newAlbumLocation = albumLocation + newDirTitle + '/'
             createAlbumDirectory(newAlbumLocation)
-            dirUrl = url + str(songLink.get('href')).replace(' ', '%20')
+            dirUrl = url + urllib2.quote(link.get('href').encode('utf8'), safe='/?=&')
             print ('++ FOUND DIRECTORY ' + newDirTitle + ' AT: ' + baseDirTitle)
             logging.info('++ FOUND DIRECTORY ' + newDirTitle + ' AT: ' + baseDirTitle)
             newSongSoup = getSoup(dirUrl)
@@ -100,7 +102,7 @@ totalAlbums = countDirs(url)
 albumSoup = getSoup(url)
 # All Links
 for link in albumSoup.find_all('a'):
-    folderUrl = url + str(link.get('href')).replace(' ', '%20')
+    folderUrl = url + urllib2.quote(link.get('href').encode('utf8'), safe='/?=&')
     # Album Links
     if dirPattern.search(folderUrl) and str(link.get('title')) != 'None':
         # Album Range Download
