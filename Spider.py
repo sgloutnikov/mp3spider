@@ -6,22 +6,23 @@ import logging
 import os
 import random
 
-# Main Url
-urlBase = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/"
-# Sorted Url for Newest Album Listing 1st
-url = "http://www.folkoteka.org:7080/NOVO-2012-2013DLNOV0ollllIllIlhdweruuuuuuuuuu/index.php?order=mod&direction=0/"
+# Base Url
+urlBase = "http://www.folkoteka.org:7080/downloadstariiiIIIIIIIIIIIlllfdtgzjhzhftuuuuuu/"
+# Main Url for different sort methods (ex. Sorted Url for Newest Album Listing 1st)
+url = "http://www.folkoteka.org:7080/downloadstariiiIIIIIIIIIIIlllfdtgzjhzhftuuuuuu/"
 
-downloadBaseLocation = '/Users/sgloutnikov/Downloads/Folkoteka/'
+downloadBaseLocation = 'F:/+Folkoteka+/'
 downloadAlbumLocation = ''
 # Identify entities in link by these patterns
 mp3Pattern = re.compile('.*action=downloadfile.*mp3&.*', re.UNICODE)
 zipPattern = re.compile('.*action=downloadfile.*zip&.*', re.UNICODE)
+rarPattern = re.compile('.*action=downloadfile.*rar&.*', re.UNICODE)
 dirPattern = re.compile('.*&direction.*&directory.*', re.UNICODE)
 downloadCurrent = 0
 totalAlbums = 0
 # Inclusive Range
-downloadStart = 151
-downloadEnd = 151
+downloadStart = 49
+downloadEnd = 49
 
 logging.basicConfig(filename='./log/fs-'+str(downloadStart)+'-'+str(downloadEnd)+'.log', format='%(asctime)s: %(message)s', \
                     datefmt='%m-%d-%Y %H:%M', level=logging.DEBUG)
@@ -73,7 +74,7 @@ def processDir(songSoup, baseDirTitle, albumLocation):
     for songLink in songSoup.find_all('a'):
         songHref = urllib2.quote(songLink.get('href').encode('utf8'), safe='/?=&')
         # Song Found
-        if (mp3Pattern.search(songHref) or zipPattern.search(songHref)):
+        if (mp3Pattern.search(songHref) or zipPattern.search(songHref) or rarPattern.search(songHref)):
             time.sleep(random.randint(1,2))
             songUrl = urlBase + songHref
             logging.info('+ STARTING SONG FROM: ' + songUrl)
