@@ -6,10 +6,11 @@ import logging
 import os
 import random
 
+# URL & Paths, include traling '/'
 # Base Url
 urlBase = "http://www.folkoteka.org:7080/downloadstariiiIIIIIIIIIIIlllfdtgzjhzhftuuuuuu/"
 # Main Url for different sort methods (ex. Sorted Url for Newest Album Listing 1st)
-url = "http://www.folkoteka.org:7080/downloadstariiiIIIIIIIIIIIlllfdtgzjhzhftuuuuuu/"
+url = "http://www.folkoteka.org:7080/downloadstariiiIIIIIIIIIIIlllfdtgzjhzhftuuuuuu/index.php?direction=0&order=nom/"
 
 downloadBaseLocation = 'F:/+Folkoteka+/'
 downloadAlbumLocation = ''
@@ -21,8 +22,8 @@ dirPattern = re.compile('.*&direction.*&directory.*', re.UNICODE)
 downloadCurrent = 0
 totalAlbums = 0
 # Inclusive Range
-downloadStart = 49
-downloadEnd = 49
+downloadStart = 109
+downloadEnd = 125
 
 logging.basicConfig(filename='./log/fs-'+str(downloadStart)+'-'+str(downloadEnd)+'.log', format='%(asctime)s: %(message)s', \
                     datefmt='%m-%d-%Y %H:%M', level=logging.DEBUG)
@@ -72,7 +73,7 @@ def download(url, albumDestination):
 def processDir(songSoup, baseDirTitle, albumLocation):
     # Song Links
     for songLink in songSoup.find_all('a'):
-        songHref = urllib2.quote(songLink.get('href').encode('utf8'), safe='/?=&')
+        songHref = urllib2.quote(songLink.get('href').encode('iso-8859-1'), safe='/?=&')
         # Song Found
         if (mp3Pattern.search(songHref) or zipPattern.search(songHref) or rarPattern.search(songHref)):
             time.sleep(random.randint(1,2))
@@ -97,7 +98,7 @@ totalAlbums = countDirs(url)
 albumSoup = getSoup(url)
 # All Links
 for link in albumSoup.find_all('a'):
-    folderUrl = url + urllib2.quote(link.get('href').encode('utf8'), safe='/?=&')
+    folderUrl = url + urllib2.quote(link.get('href').encode('iso-8859-1'), safe='/?=&')
     # Album Links
     if dirPattern.search(folderUrl) and str(link.get('title')) != 'None':
         # Album Range Download
