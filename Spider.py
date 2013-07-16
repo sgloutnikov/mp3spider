@@ -6,8 +6,8 @@ import logging
 import os
 import random
 
-# URL & Paths, include traling '/'
-# Base Url
+# URL & Paths, include trailing '/'
+# Base Url before href
 urlBase = "http://www.folkoteka.org:7080/downloadstariiiIIIIIIIIIIIlllfdtgzjhzhftuuuuuu/"
 # Main Url for different sort methods (ex. Sorted Url for Newest Album Listing 1st)
 url = "http://www.folkoteka.org:7080/downloadstariiiIIIIIIIIIIIlllfdtgzjhzhftuuuuuu/index.php?direction=0&order=nom/"
@@ -19,9 +19,10 @@ mp3Pattern = re.compile('.*action=downloadfile.*mp3&.*', re.UNICODE)
 zipPattern = re.compile('.*action=downloadfile.*zip&.*', re.UNICODE)
 rarPattern = re.compile('.*action=downloadfile.*rar&.*', re.UNICODE)
 dirPattern = re.compile('.*&direction.*&directory.*', re.UNICODE)
+# Leave at 0
 downloadCurrent = 0
 totalAlbums = 0
-# Inclusive Range
+# Inclusive Range of what items to download
 downloadStart = 109
 downloadEnd = 125
 
